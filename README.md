@@ -1,2 +1,7 @@
 # advent-of-code
-My advent of code solutions.
+My Advent of Code solutions.
+
+### Used langages:
+- 2022: Dart
+- 2021: Java
+- 2020: Python

@@ -1,0 +1,14 @@
+# Advent of Code input files
+*.txt
+
+# JetBrains
+*.iml
+.idea/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Java
+out/
