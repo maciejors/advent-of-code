@@ -1,0 +1,2 @@
+python puzzle.py
+PAUSE
