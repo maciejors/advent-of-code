@@ -1,4 +1,4 @@
-package com.maciejors.aoc21.day1;
+package com.maciejors.aoc21.day01;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-public class Day1 {
+public class Day01 {
     public static void main(String[] args) throws IOException, InterruptedException {
         List<Integer> values = new ArrayList<>(2000);
         try (BufferedReader reader = new BufferedReader(new FileReader("src/com/maciejors/aoc21/day1/input.txt"))) {

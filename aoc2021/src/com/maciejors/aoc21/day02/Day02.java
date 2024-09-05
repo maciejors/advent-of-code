@@ -1,4 +1,4 @@
-package com.maciejors.aoc21.day2;
+package com.maciejors.aoc21.day02;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Day2 {
+public class Day02 {
     public static void main(String[] args) {
         List<String> values = new ArrayList<>(2000);
         try (BufferedReader reader = new BufferedReader(new FileReader("src/com/maciejors/aoc21/day2/input.txt"))) {

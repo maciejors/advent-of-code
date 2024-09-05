@@ -1,4 +1,4 @@
-package com.maciejors.aoc21.day3;
+package com.maciejors.aoc21.day03;
 
 import com.maciejors.aoc21.CommonFunctions;
 
@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class Day3 {
+public class Day03 {
     public static void main(String[] args) {
         List<String> values = new ArrayList<>(2000);
         try (BufferedReader reader = new BufferedReader(new FileReader("src/com/maciejors/aoc21/day3/input.txt"))) {
