@@ -1,4 +1,4 @@
-package com.maciejors.aoc21;
+package com.maciejors.aoc21.shared;
 
 import java.io.BufferedReader;
 import java.io.FileReader;

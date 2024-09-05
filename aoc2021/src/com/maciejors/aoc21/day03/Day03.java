@@ -1,6 +1,6 @@
 package com.maciejors.aoc21.day03;
 
-import com.maciejors.aoc21.CommonFunctions;
+import com.maciejors.aoc21.shared.CommonFunctions;
 
 import java.io.BufferedReader;
 import java.io.FileReader;

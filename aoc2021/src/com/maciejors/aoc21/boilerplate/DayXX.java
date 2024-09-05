@@ -1,6 +1,6 @@
 package com.maciejors.aoc21.boilerplate;
 
-import com.maciejors.aoc21.CommonFunctions;
+import com.maciejors.aoc21.shared.CommonFunctions;
 
 import java.util.List;
 
