@@ -6,17 +6,17 @@ import java.util.List;
 
 public class DayXX {
     public static void main(String[] args) {
-        List<String> lines = CommonFunctions.readInput("XX", true);
+        List<String> input = CommonFunctions.readInput("XX", true);
         System.out.println("Task 1:");
-        task1(lines);
+        task1(input);
         System.out.println();
         System.out.println("Task 2:");
-        task2(lines);
+        task2(input);
     }
 
-    private static void task1(List<String> lines) {
+    private static void task1(List<String> input) {
     }
 
-    private static void task2(List<String> lines) {
+    private static void task2(List<String> input) {
     }
 }
