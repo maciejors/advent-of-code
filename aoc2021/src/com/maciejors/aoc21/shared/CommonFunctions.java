@@ -21,16 +21,11 @@ public final class CommonFunctions {
     /**
      * Read input for a specified day
      * @param dayId A day identifier (e.g. "02", "09", "15", "21")
-     * @param example Read example data
+     * @param filename Which file to read (e.g. "example.txt")
      * @return A list of lines from the input file
      */
-    public static List<String> readInput(String dayId, boolean example) {
-        String path = "src/com/maciejors/aoc21/day%s/".formatted(dayId);
-        if (example) {
-            path += "example.txt";
-        } else {
-            path += "input.txt";
-        }
+    public static List<String> readInput(String dayId, String filename) {
+        String path = "src/com/maciejors/aoc21/day%s/%s".formatted(dayId, filename);
         List<String> lines = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(new FileReader(path))) {
             String line;
@@ -41,5 +36,19 @@ public final class CommonFunctions {
             e.printStackTrace();
         }
         return lines;
+    }
+
+    /**
+     * Read input for a specified day
+     * @param dayId A day identifier (e.g. "02", "09", "15", "21")
+     * @param example If true, it will read "example.txt". Otherwise, "input.txt"
+     * @return A list of lines from the input file
+     */
+    public static List<String> readInput(String dayId, boolean example) {
+        if (example) {
+            return readInput(dayId, "example.txt");
+        } else {
+            return readInput(dayId, "input.txt");
+        }
     }
 }
