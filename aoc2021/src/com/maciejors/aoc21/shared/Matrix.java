@@ -1,5 +1,6 @@
 package com.maciejors.aoc21.shared;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -102,5 +103,19 @@ public class Matrix<T> {
      */
     public int[] getShape() {
         return shape.clone();
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append('[');
+        for (T[] row : values) {
+            stringBuilder
+                    .append(Arrays.toString(row))
+                    .append("\n ");
+        }
+        int len = stringBuilder.length();
+        stringBuilder.replace(len - 2, len - 1, "]");
+        return stringBuilder.toString();
     }
 }
