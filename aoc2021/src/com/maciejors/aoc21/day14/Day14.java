@@ -2,14 +2,13 @@ package com.maciejors.aoc21.day14;
 
 import com.maciejors.aoc21.shared.CommonFunctions;
 
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.math.BigInteger;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class Day14 {
     public static void main(String[] args) {
-        List<String> input = CommonFunctions.readInput("14", true);
+        List<String> input = CommonFunctions.readInput("14", false);
         System.out.println("Task 1:");
         task1(input);
         System.out.println();
@@ -27,56 +26,79 @@ public class Day14 {
         return new PolymerData(templateStr, pairInsertionRules);
     }
 
-    private static int simulatePolymerGrowthSlow(PolymerData polymerData, int steps) {
-        // 1. simulate growth
+    private static BigInteger simulatePolymerGrowthFast(PolymerData polymerData, int steps) {
+        String startingPolymer = polymerData.template();
         Map<String, Character> insertionRules = polymerData.pairInsertionRules();
-        String currPolymer = polymerData.template();
-        for (int step = 1; step <= steps; step++) {
-            StringBuilder nextPolymer = new StringBuilder();
-            for (int i = 0; i < currPolymer.length() - 1; i++) {
-                String pair = currPolymer.substring(i, i + 2);
-                nextPolymer.append(pair.charAt(0));
-                Character replacement = insertionRules.getOrDefault(pair, null);
-                if (replacement != null) {
-                    nextPolymer.append(replacement);
-                }
+        // track counts
+        Map<Character, BigInteger> elementsCounts = new HashMap<>();
+        for (char character : startingPolymer.toCharArray()) {
+            elementsCounts.put(
+                    character,
+                    elementsCounts.getOrDefault(character, BigInteger.ZERO).add(BigInteger.ONE)
+            );
+        }
+        // track counts of pairs that are included in insertion rules
+        Map<String, BigInteger> importantPairsCounts = insertionRules.keySet()
+                .stream()
+                .collect(Collectors.toMap(key -> key, value -> BigInteger.ZERO));
+        for (int i = 0; i < startingPolymer.length() - 1; i++) {
+            String pair = startingPolymer.substring(i, i + 2);
+            if (importantPairsCounts.containsKey(pair)) {
+                importantPairsCounts.put(pair, importantPairsCounts.get(pair).add(BigInteger.ONE));
             }
-            // append the last element
-            nextPolymer.append(currPolymer.charAt(currPolymer.length() - 1));
-            currPolymer = nextPolymer.toString();
         }
-
-        // 2. calculate score
-        Map<Character, Integer> elementsCounts = new HashMap<>();
-        for (char character : currPolymer.toCharArray()) {
-            elementsCounts.put(character, elementsCounts.getOrDefault(character, 0) + 1);
+        // perform the simulation
+        for (int i = 0; i < steps; i++) {
+            Map<String, BigInteger> pairsDiffs = new HashMap<>();
+            for (Map.Entry<String, BigInteger> entry : importantPairsCounts.entrySet()) {
+                String pair = entry.getKey();
+                BigInteger pairCount = entry.getValue();
+                if (BigInteger.ZERO.equals(pairCount)) {
+                    continue;
+                }
+                char insertedElementChar = insertionRules.get(pair);
+                String insertedElementStr = String.valueOf(insertedElementChar);
+                // inserting in between adds two new pairs and removes this pair
+                pairsDiffs.put(pair, pairsDiffs.getOrDefault(pair, BigInteger.ZERO).subtract(pairCount));
+                // but adds two new pairs
+                String leftPair = pair.charAt(0) + insertedElementStr;
+                String rightPair = insertedElementStr + pair.charAt(1);
+                pairsDiffs.put(leftPair, pairsDiffs.getOrDefault(leftPair, BigInteger.ZERO).add(pairCount));
+                pairsDiffs.put(rightPair, pairsDiffs.getOrDefault(rightPair, BigInteger.ZERO).add(pairCount));
+                // also update element counts with the added element
+                elementsCounts.put(
+                        insertedElementChar,
+                        elementsCounts.getOrDefault(insertedElementChar, BigInteger.ZERO).add(pairCount)
+                );
+            }
+            // update counts with diffs
+            importantPairsCounts.replaceAll((p, v) ->
+                    importantPairsCounts.get(p).add(pairsDiffs.getOrDefault(p, BigInteger.ZERO))
+            );
         }
-        int mostCommonCount = elementsCounts.entrySet()
+        // calculate final score
+        BigInteger mostCommonCount = elementsCounts.entrySet()
                 .stream()
-                .max(Comparator.comparingInt(Map.Entry::getValue))
+                .max(Map.Entry.comparingByValue())
                 .map(Map.Entry::getValue)
-                .orElse(0);
-        int leastCommonCount = elementsCounts.entrySet()
+                .orElse(BigInteger.ZERO);
+        BigInteger leastCommonCount = elementsCounts.entrySet()
                 .stream()
-                .min(Comparator.comparingInt(Map.Entry::getValue))
+                .min(Map.Entry.comparingByValue())
                 .map(Map.Entry::getValue)
-                .orElse(0);
-        return mostCommonCount - leastCommonCount;
-    }
-
-    private static int simulatePolymerGrowthFast(PolymerData polymerData, int steps) {
-        return 0;
+                .orElse(BigInteger.ZERO);
+        return mostCommonCount.subtract(leastCommonCount);
     }
 
     private static void task1(List<String> input) {
         PolymerData polymerData = parsePolymerData(input);
-        int result = simulatePolymerGrowthSlow(polymerData, 10);
+        BigInteger result = simulatePolymerGrowthFast(polymerData, 10);
         System.out.println(result);
     }
 
     private static void task2(List<String> input) {
         PolymerData polymerData = parsePolymerData(input);
-        int result = simulatePolymerGrowthFast(polymerData, 40);
+        BigInteger result = simulatePolymerGrowthFast(polymerData, 40);
         System.out.println(result);
     }
 }
