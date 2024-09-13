@@ -27,11 +27,11 @@ public class Day14 {
         return new PolymerData(templateStr, pairInsertionRules);
     }
 
-    private static String simulatePolymerGrowthSlow(PolymerData polymerData, int steps) {
+    private static int simulatePolymerGrowthSlow(PolymerData polymerData, int steps) {
+        // 1. simulate growth
         Map<String, Character> insertionRules = polymerData.pairInsertionRules();
         String currPolymer = polymerData.template();
         for (int step = 1; step <= steps; step++) {
-            System.out.printf("Now calculating step %d\n", step);
             StringBuilder nextPolymer = new StringBuilder();
             for (int i = 0; i < currPolymer.length() - 1; i++) {
                 String pair = currPolymer.substring(i, i + 2);
@@ -45,15 +45,10 @@ public class Day14 {
             nextPolymer.append(currPolymer.charAt(currPolymer.length() - 1));
             currPolymer = nextPolymer.toString();
         }
-        return currPolymer;
-    }
 
-    /**
-     * Quantity of the most common element minus q-ty of the least common element
-     */
-    private static int calculateScore(String polymer) {
+        // 2. calculate score
         Map<Character, Integer> elementsCounts = new HashMap<>();
-        for (char character : polymer.toCharArray()) {
+        for (char character : currPolymer.toCharArray()) {
             elementsCounts.put(character, elementsCounts.getOrDefault(character, 0) + 1);
         }
         int mostCommonCount = elementsCounts.entrySet()
@@ -69,16 +64,20 @@ public class Day14 {
         return mostCommonCount - leastCommonCount;
     }
 
+    private static int simulatePolymerGrowthFast(PolymerData polymerData, int steps) {
+        return 0;
+    }
+
     private static void task1(List<String> input) {
         PolymerData polymerData = parsePolymerData(input);
-        String finalPolymer = simulatePolymerGrowthSlow(polymerData, 10);
-        System.out.println(calculateScore(finalPolymer));
+        int result = simulatePolymerGrowthSlow(polymerData, 10);
+        System.out.println(result);
     }
 
     private static void task2(List<String> input) {
         PolymerData polymerData = parsePolymerData(input);
-        String finalPolymer = simulatePolymerGrowthSlow(polymerData, 40);
-        System.out.println(calculateScore(finalPolymer));
+        int result = simulatePolymerGrowthFast(polymerData, 40);
+        System.out.println(result);
     }
 }
 
