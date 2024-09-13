@@ -19,44 +19,42 @@ public class Day14 {
 
     private static PolymerData parsePolymerData(List<String> input) {
         String templateStr = input.get(0);
-        PolymerElement firstElement = PolymerElement.parsePolymer(templateStr);
         Map<String, Character> pairInsertionRules = new HashMap<>();
         for (int i = 2; i < input.size(); i++) {
             String[] lineSplit = input.get(i).split(" -> ");
             pairInsertionRules.put(lineSplit[0], lineSplit[1].charAt(0));
         }
-        return new PolymerData(firstElement, pairInsertionRules);
+        return new PolymerData(templateStr, pairInsertionRules);
     }
 
-    private static PolymerElement simulatePolymerGrowth(PolymerData polymerData, int steps) {
+    private static String simulatePolymerGrowthSlow(PolymerData polymerData, int steps) {
         Map<String, Character> insertionRules = polymerData.pairInsertionRules();
-        PolymerElement firstElement = polymerData.templateFirstElement();
-        for (int i = 0; i < steps; i++) {
-            System.out.printf("Now calculating step %d\n", i + 1);
-            PolymerElement currElement = firstElement;
-            while (currElement.hasNext()) {
-                String currPair = currElement.getPair();
-                Character replacement = insertionRules.getOrDefault(currPair, null);
+        String currPolymer = polymerData.template();
+        for (int step = 1; step <= steps; step++) {
+            System.out.printf("Now calculating step %d\n", step);
+            StringBuilder nextPolymer = new StringBuilder();
+            for (int i = 0; i < currPolymer.length() - 1; i++) {
+                String pair = currPolymer.substring(i, i + 2);
+                nextPolymer.append(pair.charAt(0));
+                Character replacement = insertionRules.getOrDefault(pair, null);
                 if (replacement != null) {
-                    currElement.insertNext(replacement);
-                    currElement = currElement.moveToNext();
+                    nextPolymer.append(replacement);
                 }
-                currElement = currElement.moveToNext();
             }
+            // append the last element
+            nextPolymer.append(currPolymer.charAt(currPolymer.length() - 1));
+            currPolymer = nextPolymer.toString();
         }
-        return firstElement;
+        return currPolymer;
     }
 
     /**
      * Quantity of the most common element minus q-ty of the least common element
      */
-    private static int calculateScore(PolymerElement firstElement) {
+    private static int calculateScore(String polymer) {
         Map<Character, Integer> elementsCounts = new HashMap<>();
-        PolymerElement currElement = firstElement;
-        while (currElement != null) {
-            char currChar = currElement.getValue();
-            elementsCounts.put(currChar, elementsCounts.getOrDefault(currChar, 0) + 1);
-            currElement = currElement.moveToNext();
+        for (char character : polymer.toCharArray()) {
+            elementsCounts.put(character, elementsCounts.getOrDefault(character, 0) + 1);
         }
         int mostCommonCount = elementsCounts.entrySet()
                 .stream()
@@ -73,15 +71,15 @@ public class Day14 {
 
     private static void task1(List<String> input) {
         PolymerData polymerData = parsePolymerData(input);
-        PolymerElement firstElement = simulatePolymerGrowth(polymerData, 10);
-        System.out.println(calculateScore(firstElement));
+        String finalPolymer = simulatePolymerGrowthSlow(polymerData, 10);
+        System.out.println(calculateScore(finalPolymer));
     }
 
     private static void task2(List<String> input) {
         PolymerData polymerData = parsePolymerData(input);
-        PolymerElement firstElement = simulatePolymerGrowth(polymerData, 40);
-        System.out.println(calculateScore(firstElement));
+        String finalPolymer = simulatePolymerGrowthSlow(polymerData, 40);
+        System.out.println(calculateScore(finalPolymer));
     }
 }
 
-record PolymerData(PolymerElement templateFirstElement, Map<String, Character> pairInsertionRules) {}
+record PolymerData(String template, Map<String, Character> pairInsertionRules) {}
