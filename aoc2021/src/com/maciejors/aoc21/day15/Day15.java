@@ -120,6 +120,46 @@ public class Day15 {
         return unvisitedDistances.get(finishingPosition);
     }
 
+    record PositionAndDistance(Position position, int distance) {}
+
+    /**
+     * Dijkstra implementation with Priority Queue
+     * <a href="https://www.geeksforgeeks.org/dijkstras-shortest-path-algorithm-using-priority_queue-stl/">
+     *     Dijkstra with Priority Queue
+     * </a>
+     */
+    private static int dijkstraFaster(Matrix<Position> positions) {
+        Position startingPosition = positions.get(0, 0);
+        Position finishingPosition = positions.get(
+                positions.getShape()[0] - 1,
+                positions.getShape()[1] - 1
+        );
+        // initialise data for Dijkstra
+        Map<Position, Integer> distances = positions.toFlatList()
+                .stream()
+                .collect(Collectors.toMap(key -> key, value -> Integer.MAX_VALUE));
+        distances.put(startingPosition, 0);
+        PriorityQueue<PositionAndDistance> priorityQueue = new PriorityQueue<>(
+                Comparator.comparingInt(PositionAndDistance::distance)
+        );
+        priorityQueue.add(new PositionAndDistance(startingPosition, 0));
+        // run Dijsktra algorithm
+        while (!priorityQueue.isEmpty()) {
+            PositionAndDistance posWithSmallestDistance = priorityQueue.poll();
+            Position currPos = posWithSmallestDistance.position();
+            int currPosDistance = posWithSmallestDistance.distance();
+            for (Position neighbour : currPos.neighbours()) {
+                int distanceToNeighbour = neighbour.riskLevel();
+                if (distances.get(neighbour) > currPosDistance + distanceToNeighbour) {
+                    distances.put(neighbour, currPosDistance + distanceToNeighbour);
+                    priorityQueue.add(new PositionAndDistance(neighbour, distances.get(neighbour)));
+                }
+            }
+        }
+        // find the shortest distance to the finishing position
+        return distances.get(finishingPosition);
+    }
+
     @Deprecated
     private static void deepFirstSearch(Position vertex, Set<Position> unvisitedSet, Deque<Position> stack) {
         unvisitedSet.remove(vertex);
@@ -174,7 +214,7 @@ public class Day15 {
         List<List<Integer>> values = parseValues(input);
         Matrix<Integer> valuesMatrix = new Matrix<>(values);
         Matrix<Position> positions = getPositions(valuesMatrix);
-        int distanceToEnd = dijkstra(positions);
+        int distanceToEnd = dijkstraFaster(positions);
         System.out.println(distanceToEnd);
     }
 
@@ -208,8 +248,8 @@ public class Day15 {
         }
         // rest similar to before but algorithm optimised for DAGs
         Matrix<Integer> valuesMatrix = new Matrix<>(values);
-        Matrix<Position> positions = getPositions(valuesMatrix, true);
-        int distanceToEnd = dijkstra(positions);
+        Matrix<Position> positions = getPositions(valuesMatrix, false);
+        int distanceToEnd = dijkstraFaster(positions);
         System.out.println(distanceToEnd);
     }
 }
