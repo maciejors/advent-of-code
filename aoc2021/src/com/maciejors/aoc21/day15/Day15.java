@@ -4,6 +4,7 @@ import com.maciejors.aoc21.shared.CommonFunctions;
 import com.maciejors.aoc21.shared.Matrix;
 
 import java.util.*;
+import java.util.concurrent.LinkedBlockingDeque;
 import java.util.stream.Collectors;
 
 public class Day15 {
@@ -28,7 +29,7 @@ public class Day15 {
         return values;
     }
 
-    private static Matrix<Position> getPositions(Matrix<Integer> values) {
+    private static Matrix<Position> getPositions(Matrix<Integer> values, boolean makeDag) {
         int height = values.getShape()[0];
         int width = values.getShape()[1];
         // create a map of positions - for now with no neighbours
@@ -40,13 +41,18 @@ public class Day15 {
             }
         }
         // assign neighbours
-        int[][] diffsAround = {{-1, 0}, {0, -1}, {0, 1}, {1, 0}};
+        int[][] diffsAround;
+        if (makeDag) {
+            diffsAround = new int[][]{{0, 1}, {1, 0}};
+        } else {
+            diffsAround = new int[][]{{-1, 0}, {0, -1}, {0, 1}, {1, 0}};
+        }
         for (int row = 0; row < height; row++) {
             for (int col = 0; col < width; col++) {
                 Position currPos = positions.get(row, col);
                 for (int[] diff : diffsAround) {
-                    int neighbourRow = row - diff[0];
-                    int neighbourCol = col - diff[1];
+                    int neighbourRow = row + diff[0];
+                    int neighbourCol = col + diff[1];
                     if (neighbourRow >= 0 && neighbourRow < height &&
                             neighbourCol >= 0 && neighbourCol < width) {
                         Position neighbour = positions.get(neighbourRow, neighbourCol);
@@ -56,6 +62,10 @@ public class Day15 {
             }
         }
         return positions;
+    }
+
+    private static Matrix<Position> getPositions(Matrix<Integer> values) {
+        return getPositions(values, false);
     }
 
     /**
@@ -110,6 +120,56 @@ public class Day15 {
         return unvisitedDistances.get(finishingPosition);
     }
 
+    @Deprecated
+    private static void deepFirstSearch(Position vertex, Set<Position> unvisitedSet, Deque<Position> stack) {
+        unvisitedSet.remove(vertex);
+        for (Position neighbour : vertex.neighbours()) {
+            if (unvisitedSet.contains(neighbour)) {
+                deepFirstSearch(neighbour, unvisitedSet, stack);
+            }
+        }
+        stack.push(vertex);
+    }
+
+    /**
+     * This ended up not working
+     * <br>
+     * <a href="https://www.geeksforgeeks.org/shortest-path-for-directed-acyclic-graphs/">Shortest path for DAGs</a>
+     * <a href="https://www.geeksforgeeks.org/topological-sorting/">Topological sorting</a>
+     * <a href="https://en.wikipedia.org/wiki/Depth-first_search">Deep-first search</a>
+     */
+    @Deprecated
+    private static int shortestPathInDag(Matrix<Position> positions) {
+        Position startingPosition = positions.get(0, 0);
+        Position finishingPosition = positions.get(
+                positions.getShape()[0] - 1,
+                positions.getShape()[1] - 1
+        );
+        // Initialise data for Topological sorting
+        Deque<Position> stack = new LinkedBlockingDeque<>();
+        Set<Position> unvisited = new HashSet<>(positions.toFlatList());
+        // perform topological sorting
+        deepFirstSearch(startingPosition, unvisited, stack);
+        List<Position> sortedPositions = new LinkedList<>();
+        while (!stack.isEmpty()) {
+            sortedPositions.add(stack.pop());
+        }
+        // Finding the shortest path
+        Map<Position, Integer> distances = positions.toFlatList()
+                .stream()
+                .collect(Collectors.toMap(key -> key, value -> Integer.MAX_VALUE));
+        distances.put(startingPosition, 0);
+        for (Position currPos : sortedPositions) {
+            for (Position adjacentPos : currPos.neighbours()) {
+                distances.put(
+                        adjacentPos,
+                        Math.min(distances.get(adjacentPos), distances.get(currPos) + adjacentPos.riskLevel())
+                );
+            }
+        }
+        return distances.get(finishingPosition);
+    }
+
     private static void task1(List<String> input) {
         List<List<Integer>> values = parseValues(input);
         Matrix<Integer> valuesMatrix = new Matrix<>(values);
@@ -146,9 +206,9 @@ public class Day15 {
                 values.add(extraRow);
             }
         }
-        // rest as before
+        // rest similar to before but algorithm optimised for DAGs
         Matrix<Integer> valuesMatrix = new Matrix<>(values);
-        Matrix<Position> positions = getPositions(valuesMatrix);
+        Matrix<Position> positions = getPositions(valuesMatrix, true);
         int distanceToEnd = dijkstra(positions);
         System.out.println(distanceToEnd);
     }

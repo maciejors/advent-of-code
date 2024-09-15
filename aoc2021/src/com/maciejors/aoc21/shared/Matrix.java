@@ -1,5 +1,6 @@
 package com.maciejors.aoc21.shared;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -96,6 +97,14 @@ public class Matrix<T> {
             column[j] = values[j][i];
         }
         return column;
+    }
+
+    public List<T> toFlatList() {
+        List<T> result = new ArrayList<>();
+        for (T[] row : values) {
+            result.addAll(List.of(row));
+        }
+        return result;
     }
 
     /**
