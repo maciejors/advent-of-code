@@ -21,7 +21,7 @@ public final class CommonFunctions {
     /**
      * Read input for a specified day
      * @param dayId A day identifier (e.g. "02", "09", "15", "21")
-     * @param filename Which file to read (e.g. "example.txt")
+     * @param filename Which file to read (e.g. "example-2.txt")
      * @return A list of lines from the input file
      */
     public static List<String> readInput(String dayId, String filename) {
@@ -41,14 +41,21 @@ public final class CommonFunctions {
     /**
      * Read input for a specified day
      * @param dayId A day identifier (e.g. "02", "09", "15", "21")
-     * @param example If true, it will read "example.txt". Otherwise, "input.txt"
+     * @param example If true, it will read "example-type4.txt". Otherwise, "input.txt"
      * @return A list of lines from the input file
      */
     public static List<String> readInput(String dayId, boolean example) {
         if (example) {
-            return readInput(dayId, "example.txt");
+            return readInput(dayId, "example-type4.txt");
         } else {
             return readInput(dayId, "input.txt");
         }
+    }
+
+    /**
+     * Read input for a specified day
+     */
+    public static List<String> readInput(String dayId) {
+        return readInput(dayId, false);
     }
 }
