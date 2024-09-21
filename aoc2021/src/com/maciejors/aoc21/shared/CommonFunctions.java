@@ -41,12 +41,12 @@ public final class CommonFunctions {
     /**
      * Read input for a specified day
      * @param dayId A day identifier (e.g. "02", "09", "15", "21")
-     * @param example If true, it will read "example-type4.txt". Otherwise, "input.txt"
+     * @param example If true, it will read "example.txt". Otherwise, "input.txt"
      * @return A list of lines from the input file
      */
     public static List<String> readInput(String dayId, boolean example) {
         if (example) {
-            return readInput(dayId, "example-type4.txt");
+            return readInput(dayId, "example.txt");
         } else {
             return readInput(dayId, "input.txt");
         }
