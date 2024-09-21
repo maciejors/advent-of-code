@@ -22,4 +22,7 @@ boilerplate_code=${boilerplate_code//boilerplate/day$1}
 # replace 'XX' with the day identifier
 boilerplate_code=${boilerplate_code//XX/$1}
 
-printf "$boilerplate_code" >> $puzzle_dir/Day$1.java
+java_file_path=$puzzle_dir/Day$1.java
+
+printf "$boilerplate_code" >> $java_file_path
+git add $java_file_path
