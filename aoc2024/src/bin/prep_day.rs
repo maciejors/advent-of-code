@@ -7,7 +7,7 @@ fn main() -> Result<(), io::Error> {
     let day_id = args.get(1)
         .expect("Please provide the Day ID")
         .as_str();
-    let boilerplate_code = fs::read_to_string("./data/dayXX.rs.txt")?
+    let boilerplate_code = fs::read_to_string("../../data/dayXX")?
         .replace("XX", day_id);
 
     let rs_file_path = format!("./src/bin/day{}.rs", day_id);
