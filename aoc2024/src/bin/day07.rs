@@ -1,5 +1,7 @@
 use aoc2024::common::data_loader::load_multiline;
+use std::cell::RefCell;
 use std::collections::HashMap;
+use std::rc::Rc;
 
 const DAY_ID: &str = "07";
 
@@ -61,35 +63,15 @@ fn puzzle1(filename: &str) -> u64 {
     total_calibration_result
 }
 
-fn get_all_masks(len: usize, n_values: u8) -> Vec<Vec<u8>> {
-    if len == 1 {
-        (0..n_values).map(|e| vec![e.into()]).collect()
-    } else {
-        let mut result = vec![];
-        for next_mask_item in 0..n_values {
-            for sub_mask in get_all_masks(len - 1, n_values) {
-                let mut mask = sub_mask.clone();
-                mask.push(next_mask_item);
-                result.push(mask);
-            }
-        }
-        result
-    }
-}
-
 fn puzzle2(filename: &str) -> u64 {
     let input = process_input(load_multiline(DAY_ID, filename).unwrap());
+    let mask_generator = MaskGenerator::new(3);
     let mut total_calibration_result = 0;
-
-    let mut operators_mask_cache = HashMap::new();
 
     for calibration_data in input {
         let operators_count = calibration_data.numbers.len() - 1;
 
-        for operators_mask in operators_mask_cache
-            .entry(operators_count)
-            .or_insert(get_all_masks(operators_count, 3))
-        {
+        for operators_mask in mask_generator.get_all_masks(operators_count).iter() {
             let mut calibration_result = calibration_data.numbers[0];
             for (next_number, operator_idx) in
                 calibration_data.numbers[1..].iter().zip(operators_mask)
@@ -115,6 +97,53 @@ fn puzzle2(filename: &str) -> u64 {
         }
     }
     total_calibration_result
+}
+
+// Cache implementation based on: https://matklad.github.io/2022/06/11/caches-in-rust.html
+struct MaskGenerator {
+    n_values: u8,
+    cache: RefCell<HashMap<
+        usize, Rc<Vec<Vec<u8>>>
+    >>,
+}
+
+impl MaskGenerator {
+    fn new(n_values: u8) -> Self {
+        MaskGenerator {
+            n_values,
+            cache: RefCell::new(HashMap::new()),
+        }
+    }
+
+    fn get_all_masks(&self, len: usize) -> Rc<Vec<Vec<u8>>> {
+        {
+            let cache = self.cache.borrow();
+            if let Some(cached_masks) = cache.get(&len) {
+                return Rc::clone(cached_masks)
+            }
+        }
+
+        let masks = if len == 1 {
+            (0..self.n_values).map(|e| vec![e.into()]).collect()
+        } else {
+            let mut result = vec![];
+            for next_mask_item in 0..self.n_values {
+                for sub_mask in self.get_all_masks(len - 1).iter() {
+                    let mut mask = sub_mask.clone();
+                    mask.push(next_mask_item);
+                    result.push(mask);
+                }
+            }
+            result
+        };
+
+        {
+            let mut cache = self.cache.borrow_mut();
+            cache.insert(len, Rc::new(masks));
+        }
+        let cache = self.cache.borrow();
+        Rc::clone(cache.get(&len).unwrap())
+    }
 }
 
 #[cfg(test)]
