@@ -1,13 +1,13 @@
-use std::{env, fs, io};
 use std::fs::File;
 use std::path::{Path, PathBuf};
+use std::{env, fs, io};
 
 fn main() -> Result<(), io::Error> {
     let args: Vec<String> = env::args().collect();
     let day_id = args.get(1)
         .expect("Please provide the Day ID")
         .as_str();
-    let boilerplate_code = fs::read_to_string("../../data/dayXX")?
+    let boilerplate_code = fs::read_to_string("./data/dayXX.rs")?
         .replace("XX", day_id);
 
     let rs_file_path = format!("./src/bin/day{}.rs", day_id);
