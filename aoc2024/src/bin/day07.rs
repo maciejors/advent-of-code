@@ -1,4 +1,5 @@
 use aoc2024::common::data_loader::load_multiline;
+use std::collections::HashMap;
 
 const DAY_ID: &str = "07";
 
@@ -80,21 +81,27 @@ fn puzzle2(filename: &str) -> u64 {
     let input = process_input(load_multiline(DAY_ID, filename).unwrap());
     let mut total_calibration_result = 0;
 
+    let mut operators_mask_cache = HashMap::new();
+
     for calibration_data in input {
         let operators_count = calibration_data.numbers.len() - 1;
-        for operators_mask in get_all_masks(operators_count, 3) {
+
+        for operators_mask in operators_mask_cache
+            .entry(operators_count)
+            .or_insert(get_all_masks(operators_count, 3))
+        {
             let mut calibration_result = calibration_data.numbers[0];
             for (next_number, operator_idx) in
                 calibration_data.numbers[1..].iter().zip(operators_mask)
             {
-                if operator_idx == 0 {
+                if *operator_idx == 0 {
                     calibration_result += next_number;
-                } else if operator_idx == 1 {
+                } else if *operator_idx == 1 {
                     calibration_result *= next_number;
                 } else {
-                    calibration_result = (calibration_result.to_string() + &next_number.to_string())
-                        .parse()
-                        .unwrap()
+                    let next_number_digits_count = (*next_number as f64).log10().floor() as u32 + 1;
+                    calibration_result =
+                        calibration_result * 10_u64.pow(next_number_digits_count) + next_number;
                 }
                 if calibration_result > calibration_data.test_value {
                     // no point calculating further
